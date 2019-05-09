@@ -1,0 +1,154 @@
+conModChart = {
+  
+const margin = {top: 40, right: 10, bottom: 40, left: 10};
+  
+  const linkLinear = d3.scaleLinear().range([1,5]).domain([0,12])
+  const links = dataWin5Com10.edge.map(d => Object.create(d));
+  const nodes = dataWin5Com10.node.map(d => Object.create(d));
+  
+  const xscale = d3.scaleLinear().range([0, width]).domain([-500,500]),
+	      yscale = d3.scaleLinear().range([height,0]).domain([-1000,800]);
+  
+  const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id))
+      //.force("charge", d3.forceManyBody())
+      //.force("center", d3.forceCenter(width / 2, height / 2))
+      .tick(2);
+  
+  var svg = d3.select(DOM.svg(width, height));
+  
+  svg.append("g").attr("transform", "translate(" + margin.left+ "," + margin.right +  ")");
+
+
+  const linksCt = dataConCt.line;
+  const nodesCt = dataConCt.circle;
+  const textCt = dataConCt.text;
+
+  const circles = svg.selectAll("g")
+       .data(nodesCt)
+			 .enter()
+       .append("circle")
+			 .attr("class", "ct")
+			 .attr("r", 2.5)
+			 .attr("fill","black")
+			 .attr("cx", d => xscale(d.cx))
+			 .attr("cy", d => yscale(d.cy))
+       .attr("stroke", "#fff")
+       .attr("stroke-width", 0.5)
+       .selectAll("ct")
+       .join("circle");
+  
+
+
+/** var lines = svg.attr("class", "lineCt")
+            .selectAll("lineCt").data(linksCt)
+            .enter().append("line")
+            .style("stroke", "black") // <<<<< Add a color
+           .attr("y2", d => yscale(d.y2))
+           .attr("y1", d => yscale(d.y1))
+           .attr("x2", d => xscale(d.x2))
+          .attr("x1", d => xscale(d.x1)) **/
+  
+  const link = svg.append("g")
+      .attr("class", "line")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.1)
+      .selectAll("line")
+      .data(links)
+      .join("line")
+      .attr("stroke-width", d => linkLinear(d.data["$"]));
+  
+  
+  var sqrtScale = d3.scaleSqrt()
+  .domain([1, 200])
+  .range([2, 5]);
+  
+  const node = svg.append("g").attr("class", "node")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.0)
+      .selectAll("node")
+      .data(nodes)
+      .join("circle")
+      .attr("r", d => sqrtScale(d.data[1]["$"]))
+      //.attr("fill", color)
+      .attr("fill",color)
+       .on("mouseover", mouseOver(.3))
+      .on("mouseout", mouseOut);
+  
+ 
+
+  node.append("title")
+      .text(function(d){return d['id']}); 
+  
+  
+    var linkedByIndex = {};
+    links.forEach(function(d) {
+        linkedByIndex[d.source.index + "," + d.target.index] = 1;
+    });
+
+    // check the dictionary to see if nodes are linked
+    function isConnected(a, b) {
+        return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
+    }
+
+    // fade nodes on hover
+    function mouseOver(opacity) {
+      var thisOpacity = null;
+        return function(d) {
+            // check all other nodes to see if they're connected
+            // to this one. if so, keep the opacity at 1, otherwise
+            // fade
+            node.style("stroke-opacity", function(o) {
+                thisOpacity = isConnected(d, o) ? 1 : opacity;
+                return thisOpacity;
+            });
+          node.style("radius", function(o) {
+                thisOpacity = isConnected(d, o) ? 6 : 4;
+                return thisOpacity;
+            });
+            node.style("fill-opacity", function(o) {
+                thisOpacity = isConnected(d, o) ? 1 : opacity;
+                return thisOpacity;
+            });
+            // also style link accordingly
+            link.style("stroke-opacity", function(o) {
+                return o.source === d || o.target === d ? 1 : 0.01;
+            });
+            link.style("stroke", function(o){
+                return o.source === d || o.target === d ? o.source.colour : "white";
+            });
+        };
+    }
+
+    function mouseOut() {
+        node.style("stroke-opacity", 1);
+        node.style("fill-opacity", 0.8);
+        link.style("stroke-opacity", 0.1);
+        link.style("stroke", "gray");
+    }
+
+
+  simulation.on("tick", () => {
+    node
+        //d.data[13]["#text"]
+        .attr("cx", d => xscale(d.x = d.data[15]["$"]))
+        .attr("cy", d => yscale(d.y = d.data[16]["$"]));
+    
+    link
+        .attr("x1", d => xscale(d.source.x))
+        .attr("y1", d => yscale(d.source.y))
+        .attr("x2", d => xscale(d.target.x))
+        .attr("y2", d => yscale(d.target.y));
+
+
+  });
+
+  invalidation.then(() => simulation.stop());
+
+
+  	
+  return svg.node();
+
+
+
+}
