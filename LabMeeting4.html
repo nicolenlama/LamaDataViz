@@ -1,0 +1,422 @@
+<!doctype html>
+
+	<head>
+
+		<title>Lab Meeting 4</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+
+	</head>
+	<style>
+	
+	
+	.clock {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    color: #808080;
+    font-size: 60px;
+    font-family: bookman ;
+    letter-spacing: 7px;
+
+
+}
+
+.reveal section img { 
+    background: rgba(255, 255, 255, 0.12); 
+    border: none;
+    box-shadow:none;
+}
+	</style>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1 style="font-family: Abadi MT Condensed Light 
+;" >2018.08.30</h1>
+					
+					<div id="MyClockDisplay" class="clock"></div>
+					
+					
+					<script>
+	function showTime(){
+    var date = new Date();
+    var h = date.getHours(); // 0 - 23
+    var m = date.getMinutes(); // 0 - 59
+    var s = date.getSeconds(); // 0 - 59
+    var session = "AM";
+    
+    if(h == 0){
+        h = 12;
+    }
+    
+    if(h > 12){
+        h = h - 12;
+        session = "PM";
+    }
+    
+    h = (h < 10) ? "0" + h : h;
+    m = (m < 10) ? "0" + m : m;
+    s = (s < 10) ? "0" + s : s;
+    
+    var time = h + ":" + m + ":" + s + " " + session;
+    document.getElementById("MyClockDisplay").innerText = time;
+    document.getElementById("MyClockDisplay").textContent = time;
+    
+    setTimeout(showTime, 1000);
+    
+}
+
+showTime();
+
+</script>
+					
+</section>
+					
+			
+				<section>
+					<h2>Vision</h2>
+					<p>
+					Determine whether it's possible to discover and synthetically target RNA binding sites. Are
+					there certain structural features of RNA that make them more targettable?
+					</p>
+				</section>
+				
+				
+				<section>
+					<h2>Goals</h2>
+					<ul>
+						<li>Determine how well we can model tertiary RNA motifs (Rosetta) </li>
+						<font color="gray"><li>Implement pocket finding software on RNA motifs</li></font color>
+						<font color="gray"><li>Discern features of RNA motifs that are conducive to synthetic binding</li></font color>
+					</ul>
+				</section>
+
+
+				
+				<section>
+				<h2>Three Way Helix Junctions</h2>
+					<ul>
+						<li>VS H3-H4-H5 (2MTJ)</li>
+						<li>VS H2-H3-H6 (2N3R)</li>
+						<li>L11 rRNA (1HC8)</li>	
+					</ul> 
+				<h2>Riboswitches</h2>
+					<ul>
+						<li>TPP Riboswitch</li>
+						<li>FMN Riboswitch</li>
+					</ul>
+				</section>	
+				
+				<section>
+				<h2> Rosetta Parameters </h2>
+					<ul>
+					<li>RNA Denovo - Cheng,Chou,Das. 2015 </li>
+					<li>increase cycles</li>
+					<li>increase structures outputted to 650 (time permitting)</li>
+					</ul>
+			
+				</section>
+
+	
+		
+		<section data-transition="fade-in fade-out">
+		<h2>VS H3-4-5</h2>
+		<figure>
+		<img src="2mtj.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:4.7, Energy:-258 </figcaption>
+		</figure>
+		</section>
+		<section>
+		<h2>PDB vs Decoy</h2>
+		<figure>
+		<img src="2mtj.compare.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:4.7, Energy:-258</figcaption>
+		</figure>
+		</section>
+
+
+		<section data-transition="fade-in fade-out">
+		<h2>VS H2-H3-H6</h2>
+		<figure>
+		<img src="2n3r.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:7.7, Energy:-342 </figcaption>
+		</figure>
+		</section>
+		
+		<section>
+		<h2>PDB vs Decoy</h2>
+		<figure>
+		<img src="2n3r.compare.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:7.7, Energy:-342 </figcaption>
+		</figure>
+		</section>
+
+	
+		<section>
+		<h2>L11 Ribosomal RNA</h2>
+		<figure>
+		<img src="1hc8.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:7.25, Energy:-287 </figcaption>
+		</figure>
+		</section>
+		
+		<section>
+		<h2>PDB vs Decoy</h2>
+		<figure>
+		<img src="1hc8.compare.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:7.7, Energy:-342 </figcaption>
+		</figure>
+		</section>
+
+			
+		<section data-transition="fade-in fade-out">
+		<h2>TPP Riboswitch</h2>
+		<figure>
+		<img src="tpp.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:9.4, Energy:-418</figcaption>
+		</figure>
+		</section>
+		
+		<section>
+		<h2>PDB vs Decoy</h2>
+		<figure>
+		<img src="tpp.compare.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:9.4, Energy:-418 </figcaption>
+		</figure>
+		</section>
+
+		<section data-transition="fade-in fade-out">
+		<h2>FMN Riboswitch</h2>
+		<figure>
+		<img src="fmn.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:11.04, Energy:-484 </figcaption>
+		</figure>
+		</section>
+		
+	   <section>
+		<h2>PDB vs Decoy</h2>
+		<figure>
+		<img src="fmn.compare.best.rmsd.png"  height="400" width="600">
+		  <figcaption>RMSD:11.04, Energy:-484 </figcaption>
+		</figure>
+		</section>
+
+=						
+	<section class="fig-container"
+	data-file="dynamicChartPractice.html">
+	 </section> 
+	
+		<section>
+			<h2>But can we choose better structures with RING constraints?</h2>
+			<ul>
+			<li>
+			perhaps rosetta decoys containing ring correlations correspond with a lower RMSD?
+			</li>
+			</ul>
+		</section>
+				
+
+		<section>
+		<h3>Future Direction</h3>
+					<ul>
+						<li> Use Ring Constraints during simulation to fold in distal ends </li>
+						<li> Use Ring constraints as a guide to choose best structures </li>
+						<li> Experiment with different functions/depths </li>
+					</ul>
+		</section>
+		
+		<section>
+		<h2>Vision</h2>
+		<p>
+		Can network graphs of ring correlations provide insights on RNA structure?
+ 		</p>
+	    </section>
+		
+		<section>
+		<h2>Sengupta 2018</h2>
+				<figure>
+		<img src="arnabFig.png"  height="470" width="420">
+		  <figcaption> Clusters identify domains in Ribosome </figcaption>
+		</figure>
+	    </section>
+				
+				<section>
+					<h2>Goals</h2>
+					<ul>
+					    <li> Run RING-MaP on RNA </li>
+						<li> Use Gephi to analyze networks generated by ring correlations </li>
+						<li> Superimpose networks onto 2-ary and 3-ary structures </li>
+						<font color="gray"><li>Discern differences in networks between RNA states/experimental conditions</li></font color>
+					</ul>
+				</section>
+				
+		<section>
+				<h2>RNA</h2>
+					<ul>
+						<li>Cellfree/Incell RNase P (AM)</li>
+						<li>Cellfree/Incell tmRNA (AM)</li>
+						<li>Cellfree/Incell RMRP (AM)</li>	
+						<li>HIV (exvirio vs invirio - CK)</li>
+					</ul> 
+		</section>	
+		
+		<section>
+		<h3>Community Detection CF/IN RNase P</h3>
+		<img src="rnasePInvsCf.png"  height="480" width="700">
+		</section>	
+		
+		<section>
+		<h3>Community Detection CF/IN RMRP</h3>
+		<img src="RMRPInvsCf.png"  height="500" width="800">
+		</section>	
+		
+		<section>
+		<h3>Community Detection CF/IN tmRNA</h3>
+		<img src="tmRNAInvsCf.png"  height="480" width="700">
+		</section>	
+		
+		<section>
+		<img src="incell.tmRNA.png"  height="650" width="700">
+		</section>	
+		
+		<section>
+		<img src="cellfreeRnaseP2com.png"  height="680" width="800">
+		</section>	
+		
+		<section>
+		<img src="cellfree.RMRP.2Coms.png"  height="550" width="800">
+		</section>	
+		
+		<section>
+		<img src="exvirio.hiv.6coms.png"  height="600" width="1000">
+		</section>	
+		
+		<section>
+		<img src="invirio.hiv.6coms.png"  height="600" width="1000">
+		</section>	
+				
+		<section>
+				<h2>Issue</h2>
+					<ul>
+						<li>How to determine number of communities for novel RNAs?</li>
+					</ul> 
+		</section>	
+		
+		<section>
+		<h3>Future Direction</h3>
+					<ul>
+						<li> Add weight on modularity resolution based on known information on RNA 
+							and the information contained in network graph </li>
+						<li> Analyze PR- HIV Data </li>
+					</ul>
+		</section>
+		
+		<section data-background="CFRMRPGephiInterface.png">
+		</section>				
+				
+				
+		<section>
+				<h2>Lowest Energy Structure:2MTJ</h2>
+		<figure>
+		<img src="2mtj.best.energy.png"  height="400" width="600">
+		  <figcaption>RMSD:5.9, Energy:-285 </figcaption>
+		</figure>
+		</section>
+				
+				
+		<section>
+		<h2>Lowest Energy Structure:2n3r</h2>
+		<figure>
+		<img src="2n3r.best.energy.png"  height="400" width="600">
+		  <figcaption>RMSD:18.4, Energy:-366 </figcaption>
+		</figure>
+		</section>
+	<section>	
+		<h2>Lowest Energy Structure: L11 rRNA</h2>
+		<figure>
+		<img src="1hc8.best.energy.png"  height="400" width="600">
+		  <figcaption>RMSD:18.4, Energy:-366 </figcaption>
+		</figure>
+		</section>
+		
+		<section>
+		<h2>Lowest Energy Structure:TPP</h2>
+		<figure>
+		<img src="tpp.best.energy.png"  height="400" width="600">
+		  <figcaption>RMSD:16.2, Energy:-442 </figcaption>
+		</figure>
+		</section>
+		
+		<section>
+		<h2>Lowest Energy Structure:FMN</h2>
+		<figure>
+		<img src="fmn.best.energy.png"  height="400" width="600">
+		  <figcaption>RMSD:23.8, Energy:-546 </figcaption>
+		</figure>
+		</section>
+		
+		
+		</div>
+</div>		
+
+<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		
+<script> Reveal.initialize({
+	controls: false, //Display controls in the bottom right corner
+	progress: true, //Display a presentation progress bar
+	slideNumber: true, //Display the page number of the current slide
+	history: true, //Push each slide change to the browser history
+	keyboard: true, //Enable keyboard shortcuts for navigation
+	overview: true, //Enable the slide overview mode
+	center: true, //Vertical centering of slides
+	touch: true, //Enables touch navigation on devices with touch input
+	loop: false, //Loop the presentation
+	rtl: false, //Change the presentation direction to be RTL
+	fragments: true,  //Turns fragments on and off globally
+	embedded: false, //Flags if the presentation is running in an embedded mode, i.e. contained within a limited portion of the screen
+	help: true, //Flags if we should show a help overlay when the questionmark key is pressed
+	showNotes: false, //Flags if speaker notes should be visible to all viewers
+	autoSlide: 0, //Number of milliseconds between automatically proceeding to the next slide, disabled when set to 0, this value can be overwritten by using a data-autoslide attribute on your slides
+	autoSlideStoppable: true, //Stop auto-sliding after user input
+	mouseWheel: true, //Enable slide navigation via mouse wheel
+	hideAddressBar: true, //Hides the address bar on mobile devices
+	previewLinks: false, //Opens links in an iframe preview overlay
+	transition: "none", //none/fade/slide/convex/concave/zoom
+	transitionSpeed: 'slow', //default/slow/fast
+	backgroundTransition: 'fade', //none/fade/slide/convex/concave/zoom  //Transition style for full page slide backgrounds
+	dependencies: [
+        { src: 'node_modules/reveald3/reveald3.js' },
+		{ src: 'plugin/zoom-js/zoom.js', async: true}
+    ]
+});
+</script>
+
+
+//---D3 Code below will show on the  Slides -------
+
+
+
+
+
+
+
+
+
+
+
+
+
+	</body>
+</html>

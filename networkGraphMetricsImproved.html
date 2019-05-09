@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<html>
+
+<head>
+	<title>Network Graph</title>
+</head>
+<style>
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.node circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.node text{
+	fill: white;
+	font-family: Helvetica
+}
+
+
+</style>
+
+<body>
+<h1 style="font-family:bookman;" > Network Analysis MI-APC </h1>
+<h2 style="font-weight:lighter;"> rnpB </h2>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+
+const width = 500;
+const height = 500;
+const radius = 20;
+//var margin = {top: 20, right: 20, bottom: 30, left: 40}
+const svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+d3.csv("cellfree.rnpB.apc.win3.minCorr5.minCount50.50.resCorrDist.csv", function (row, rowIndex, columns) {
+
+        for (let i = 2, n = columns.length; i < n; ++i)
+            row[columns[i]] = +row[columns[i]];
+
+        return row;
+    },
+
+    function (error, data) {
+        if (error)
+            throw error;
+
+        const targets = data.map(link => ({
+            name: link.target,
+            posX: link.targetX,
+            posY: link.targetY
+        }));
+        const sources = data.map(link => ({
+            name: link.source,
+            posX: link.sourceX,
+            posY: link.sourceY
+        }));
+
+        const combined = [...targets, ...sources];
+
+        const nodes = _.uniqBy(combined, link => link.name);
+
+
+        const edges = data.map(link => ({
+            source: link.source,
+            target: link.target,
+            Distance: link.Distance,
+            Strength: link.Correlation
+        }));
+
+
+        drawViz(edges, nodes)
+
+    });
+
+function drawViz(edges, nodes) {
+
+    console.log(edges);
+    console.log(nodes);
+
+    const colorScale = d3.scaleSequential(d3.interpolateRgb('#e4e4e4', "red"))
+        .domain(d3.extent(edges, d => d.Strength));
+
+    const simulation = d3.forceSimulation()
+        .velocityDecay(0.8)
+        //.force("charge", d3.forceManyBody().strength(-500))
+        .force("link", d3.forceLink()
+            .id(d => d.name)
+            .distance(d => d.Distance * width / 170)
+            .iterations(1)
+            .strength(1))
+        .force('center', d3.forceCenter(width / 2, height / 2));
+
+    simulation.nodes(nodes)
+        .on('tick', ticked);
+
+    simulation.force("link").links(edges);
+
+    const link = svg.selectAll("line")
+        .attr('class', 'links')
+        .data(edges)
+        .enter().append("line")
+        .attr("stroke", d => colorScale(d.Strength))
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.4);
+    //.attr("length", function (d) { return d.Distance; });
+
+    link.append("title").text(d => `Distance: ${d.Distance} ( ${d.source.name} -> ${d.target.name} )`);
+
+//console.log(link)
+    const node = svg.selectAll(".node")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .attr("transform", d => `translate(${d.x},${d.y})`)
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+    node.append("circle")
+        .attr("class", "node")
+        .attr('r', radius)
+        .attr('fill', 'black');
+
+    node.append('text')
+        .attr("fill", "white")
+        .attr("text-anchor", "middle")
+        .attr("font-size", radius)
+        .attr("font-weight", "bold")
+        .text(d => d.name);
+
+    node.on("mouseover", function (d) {
+
+        const connectedNodeNames = edges
+            .filter(x => x.source.name === d.name || x.target.name === d.name)
+            .map(x => x.source.name === d.name ? x.target.name : x.source.name);
+
+        //console.log(connectedNodeNames);
+
+        d3.selectAll(".node")
+            .attr("fill", c => connectedNodeNames.includes(c.name) || c.name === d.name ? "firebrick" : "black")
+            .attr("r", c => connectedNodeNames.includes(c.name) || c.name === d.name ? 5 : 0.5);
+
+        d3.selectAll("text").attr("font-size", c => connectedNodeNames.includes(c.name) || c.name === d.name ? 5 : 0.5);
+    });
+
+    node.on("mouseout", function (d) {
+        d3.selectAll(".node")
+            .attr("fill", "black")
+            .attr("r", radius);
+        d3.selectAll("text").attr("font-size", radius);
+    });
+
+    function ticked() {
+
+        link.attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+
+        node.attr("transform", d => `translate(${d.x},${d.y})`);
+    }
+
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.6).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.1);
+        d.fx = null;
+        d.fy = null;
+        d.vx = null;
+        d.vy = null;
+    }
+}
+
+
+
+
+
+
+</script>
+	
+</body>
+</html>

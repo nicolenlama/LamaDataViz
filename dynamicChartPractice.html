@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+</html>
+<head>
+<meta charset="utf-8">
+<style>
+ 
+#dropDown{
+	position:absolute;
+	top:10px;
+	left:150px;
+  }
+
+  * {
+	font-family: "Helvetica Neue";
+}
+p, text {
+	font-size: 1.2fem;
+}
+svg {
+	background: "white";
+}
+
+</style>
+</head>
+<body>
+  <input type="checkbox" id="myCheckbox"> show rg
+
+<div id="chart"></div>
+   <select id="dropDown">
+   	<option value="fake"  selected="selected">Mock Data (ideal) </option>
+	<option value="tpp">TPP</option>
+	<option value="tppC">TPP Clust50</option>
+	<option value="tppCl">TPP Clust10</option>
+	<option value="tppCm">TPP Clust100</option>
+	<option value="tppL">TPP + Ligand</option>
+    <option value="tppLC">TPP + Ligand Clust</option>
+    <option value="fmn">FMN</option>
+	<option value="fmnC">FMN Clust50</option>
+	<option value="fmnCl">FMN Clust10</option>
+	<option value="fmnCm">FMN Clust100</option>
+    <option value="fmnL">FMN + Ligand</option>
+	<option value="h">L11 rRNA</option>
+    <option value="hC">L11 rRNA Clust</option>
+    <option value="n">VS H2-H3-H6</option>
+    <option value="nC">VS H2-H3-H6 Clust</option>
+	<option value="m">VS H3-H4-H5</option>
+	<option value="mC">VS H3-H4-H5 Clust</option>
+</select>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript" src="bubble.js"></script>
+
+</body>
+</html>

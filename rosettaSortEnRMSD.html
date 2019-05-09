@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>1HC8</title>
+	<style>
+body {
+  margin:auto;
+  width:850px;
+  font:14px arial;
+  padding:15px;
+  color:#555;
+}
+select {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding: 2px;
+  text-decoration: none;
+  font-size: 11px;
+  cursor: pointer;
+}
+select:focus {
+  outline:0;
+}
+.sortCheck {
+  float:top;
+  margin-top:-35px;
+  margin-right:190px;
+}
+#myCheckbox {
+  position:relative;
+  top:3px;
+}
+
+/* --- Chart Css --- */
+path.barEnter {
+  fill: #ff9900;
+  stroke-width: 1.5px;
+}
+.barEnter:hover {
+  opacity: 1;
+}
+.axis--x path {
+  display: none;
+}
+.grid--y path,
+.grid--y text {
+  display: none;
+}
+.grid--y line {
+  opacity:.15;
+}
+
+</style>
+</head>
+<body>
+	<h1 style="font-family:bookman;" > 1HC8 </h1>
+<h2 style="font-weight:lighter;"> Energy vs RMSD </h2>
+
+<!-- Selection Metric -->
+<b style="font-size:11px;">Choose Energy or RMSD</b>
+
+<select id="metric">
+  <option value=" 1">Energy</option>
+  <option value=" 2">RMSD</option>
+</select> 
+
+<!-- Selection New dataset -->
+<span style="margin-left:30px;">
+  <b style="font-size:11px;">
+  Choose Stage
+  </b>
+  
+  <select id="stage">
+    <option value="1">1</option>
+    <option value="2">2</option>
+  </select>
+</span>
+
+<!-- Chart -->
+<div id="chart"></div>
+
+<!-- Sort dimension -->
+<span class="sortCheck">Sort Values
+  <input type="checkbox" id="myCheckbox">
+</span>
+
+<svg width="1000" height="400"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+let formatValue = d3.format(",.0f");
+
+let margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+let x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+    y = d3.scaleLinear().rangeRound([height, 0]);
+
+let xAxis = d3.axisBottom(x),
+    yAxis = d3.axisLeft(y),
+    yGrid = d3.axisLeft(y).tickSize(-width);
+
+let g = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+    
+let sideTextX = width + 30,
+    sideTextY = -height + height;
+  
+var durations = 0;
+  
+function afterLoad() {
+    durations = 750;
+};
+  
+g.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")");
+
+g.append("g")
+    .attr("class", "axis axis--y");
+    
+g.append("g")
+    .attr("class", "axis grid--y");
+
+function type(d) { return d; }    
+
+d3.queue()
+    .defer(d3.csv, "stage1MinCount50zthresh1PPVSENsFinals.csv", type)
+    .defer(d3.csv, "stage2MinCount50zthresh2PPVSENsFinal.csv", type)
+    .await(ready);
+
+function ready(error, data1, data2) {
+
+  if (error) throw error;
+  
+  var data, INT, sortIndex;
+
+  // Event handlers
+  d3.select("#myCheckbox").on('change', update);
+  d3.select("#metric").on('change', update);
+  d3.select("#stage").on('change', function() {
+    data = d3.select('#stage').property('value') == '1' ? data1 : data2;
+    sortIndex = data.map( function(d) { return d.RNA} );
+    update();
+  });
+     
+  init();     
+  update();
+  
+  function init() {
+    data = d3.select('#stage').property('value') == '1' ? data1 : data2; 
+    sortIndex = data.map( function(d) { return d.RNA} );
+  } 
+  
+  function update() {
+    
+    INT = d3.select('#metric').property('value');
+  
+    // Update domain
+    y.domain([0, d3.max(data, function(d) {
+        return d["Metric" + INT]; })
+    ]).nice();
+    
+    // Update axis
+    g.selectAll(".axis.axis--y").transition()
+      .duration(durations)
+      .call(yAxis);
+    g.selectAll(".axis.grid--y").transition()
+      .duration(durations)
+      .call(yGrid);
+    
+    //sort data
+    data.sort( d3.select("#myCheckbox").property("checked")
+      ? function(a, b) { return b["Metric" + INT] - a["Metric" + INT]; }
+      : function(a, b) { return sortIndex.indexOf(a.RNA) - sortIndex.indexOf(b.RNA);}).slice();
+      
+    // set x domain
+    x.domain(data.map(function(d) { return d.RNA; }));
+    
+    g.selectAll(".axis.axis--x").transition()
+      .duration(durations)
+      .call(xAxis);
+      
+    // Update rectangles
+    let bars = g.selectAll(".barEnter")
+      .data(data, function(d) {
+        return d.RNA;
+      });
+      
+    bars = bars
+      .enter()
+      .append("path") // Appending path rather than rect
+      .attr("class", "barEnter")
+      .merge(bars);
+    
+    bars.transition()
+      .duration(durations)
+      .attr("d", function(d) { 
+        return roundedRect(
+          x(d.RNA),                       // x position
+          y(d["Metric" + INT]),           // y position
+          x.bandwidth(),                    // width
+          height - y(d["Metric" + INT]),  // height
+          5                                 // radius
+        ) 
+      });
+    
+    bars.exit().remove();
+    
+    // Update text on rectangles
+    let textUpdate = g.selectAll(".textEnter")
+      .data(data, function(d) {
+        return d.RNA;
+      });
+      
+    textUpdate = textUpdate.enter()
+      .append("text")
+      .style("text-shadow","1px 1px #777")
+      .attr("class", "textEnter") // Enter data reference
+      .attr("text-anchor","middle")
+      .attr("font-size",16)
+      .attr("fill","#fff")
+      .merge(textUpdate);
+    
+    textUpdate.transition()
+      .duration(durations)
+      .attr("y", function(d) { 
+        return y(d["Metric" + INT]) + 15; 
+        })
+      .attr("x", function(d) { 
+        return x(d.RNA) + x.bandwidth()/2; 
+      })
+      // Update text value
+      .text( function(d) { 
+        return d["Metric" + INT]; 
+      })
+
+  } // End of update
+
+  function roundedRect(x, y, width, height, radius) {
+    return "M" + (x + radius) + "," + y + "h" + (width - 2*radius) + 
+           "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius + 
+           "v" + (height - 2*radius) + 
+           "v" + radius + 
+           "h" + -radius + 
+           "h" + (2*radius - width) + 
+           "h" + -radius + 
+           "v" + -radius + 
+           "v" + (2*radius - height) + 
+           "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius + "z";
+  };
+
+  afterLoad()
+
+} // End of ready
+
+</script>
+
+</body>
+</html> 
