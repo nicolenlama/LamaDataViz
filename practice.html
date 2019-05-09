@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RNA</title>
+	<style>
+	body {
+		  font-family: "Times New Roman",Times,serif;
+		  font-size: 14px;
+		  color: #333;
+		}
+
+		.bar {}
+		}
+
+		#vis {
+			margin-bottom: 1em;
+	}
+</style>
+</head>
+<body>
+	<h1>RNA Sensitivity/Positive Predicted Value</h1>
+	<div id="vis"></div>
+
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://d3js.org/d3-color.v1.min.js"></script>
+	<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+	<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+	<script>
+		var margin = {top:20, right: 20, bottom: 30, left: 40},
+			width = 960 - margin.left - margin.right,
+			height = 500 - margin.top - margin.bottom;
+		
+
+		var svg = d3.select("body").append("svg")
+					.attr("width", width+margin.left+margin.right)
+					.attr("height", height+margin.top+margin.bottom)
+					.append("g")
+					.attr("transform", 
+						  "translate(" + margin.left + "," + margin.top + ")");
+
+		//var color = d3.scaleOrdinal(d3.schemeCategory10);
+		
+		//Use ctrl+alt+C to view in browser
+
+		d3.csv("SampleDataRNAPPVSENs.csv", function(data) 
+			{
+			callbackData = data;
+			callbackData.forEach(function(d) {
+				 d.Sens =+ d.Sens;
+				 d.PPV =+ d.PPV;
+  			}) 
+
+
+		console.log(callbackData.columns.filter(columns => columns !=="RNA"));
+		var metricTypes = d3.keys(callbackData[0]).filter( function(key) 
+		{ return key !== "RNA"; } );
+		callbackData.forEach(function(d) {
+				d.metrics = metricTypes.map(function(name) { return {name: name, value: +d[name]}; });
+				});
+		
+		var color = d3.scaleOrdinal(d3.schemePaired);
+
+		// Scale the range of the data in the domains
+		var x = d3.scaleBand()
+				  .padding(0.1)
+				  .domain(callbackData.map(function(d) { return d.RNA; }));
+				  
+		var x1 = d3.scaleBand() //for ppv sens
+				   .domain(metricTypes)
+				   .padding(0.05)
+				   .range([0, x.bandwidth()]);
+
+
+		var y = d3.scaleLinear()
+				  .domain([0,d3.max(callbackData, function(d) { return d3.max(d.metrics, function(d) {return d.value;}
+				  ) })])
+				  .range([height, 0]);
+
+
+		  // add the x Axis
+		svg.append("g")
+		      .attr("transform", "translate(0," + height + ")")
+		      .call(d3.axisBottom(x));
+
+		  // add the y Axis
+		svg.append("g")
+			    .call(d3.axisLeft(y))
+			 .append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("y", 6) 
+				.attr("dy", ".71em")
+				.style("text-anchor", "end")
+				.text("PPV/Sens");
+				
+		var rna = svg.selectAll(".rna")
+			.data(callbackData)
+		   .enter().append("g")
+			.attr("class", "g")
+			.attr("transform", function(d) { return "translate(" + x(d.RNA) + ",0)";});
+		
+		console.log(rna.data()[0].metrics);	
+		rna.selectAll("rect")
+			.data(function(d){return d.metrics; })
+		  .enter().append("rect")
+			.attr("width", x1.bandwidth())
+			.attr("x", function(d) { return x1(d.name); })
+			.attr("y", function(d) { return y(d.value); })
+			.attr("height", function(d) { return height - y(d.value); })
+			.style("fill", function(d) { return color(d.name); });
+			
+			
+				});		
+
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
